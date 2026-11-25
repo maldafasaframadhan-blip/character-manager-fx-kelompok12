@@ -1,10 +1,9 @@
 package com.unpri.charactermanager.model;
 
-import java.util.Locale;
+import java.util.Objects;
 
 public class Character {
 
-    // Atribut
     private String name;
     private CharacterType type;
     private int level;
@@ -12,57 +11,85 @@ public class Character {
     private int attack;
     private int mana;
 
-    // Constructor pertama
     public Character(String name, CharacterType type) {
-        this.name = name;
-        this.type = type;
+        setName(name);
+        setType(type);
         this.level = 1;
         this.mana = 0;
-
         calculateStats();
     }
 
-    // Constructor kedua
+    public Character(String name, CharacterType type, int level) {
+        setName(name);
+        setType(type);
+        setLevel(level);
+        this.mana = 0;
+    }
+
     public Character(String name, CharacterType type, int level, int mana) {
-        this.name = name;
-        this.type = type;
+        setName(name);
+        setType(type);
         setLevel(level);
         setMana(mana);
     }
 
-    // Menghitung status berdasarkan level
     private void calculateStats() {
-        this.hitPoints = this.level * 100;
-        this.attack = this.level * 10;
+        hitPoints = 100 + (level * 20);
+        attack = 10 + (level * 5);
     }
 
-    // Getter dan Setter Name
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nama tidak boleh kosong.");
+        }
+
+        if (name.trim().length() > 20) {
+            throw new IllegalArgumentException(
+                "Nama maksimal 20 karakter."
+            );
+        }
+
+        this.name = name.trim();
     }
 
-    // Getter dan Setter Type
     public CharacterType getType() {
         return type;
     }
 
     public void setType(CharacterType type) {
+        if (type == null) {
+            throw new IllegalArgumentException(
+                "Tipe karakter tidak boleh kosong."
+            );
+        }
+
         this.type = type;
+
+        if (type == CharacterType.MAGE && level > 60) {
+            throw new IllegalArgumentException(
+                "Level MAGE maksimal 60."
+            );
+        }
     }
 
-    // Getter dan Setter Level
     public int getLevel() {
         return level;
     }
 
     public void setLevel(int level) {
-        if (level < 1) {
+        if (level < 1 || level > 99) {
             throw new IllegalArgumentException(
-                "Level minimal 1"
+                "Level harus antara 1 sampai 99."
+            );
+        }
+
+        if (type == CharacterType.MAGE && level > 60) {
+            throw new IllegalArgumentException(
+                "Level MAGE maksimal 60."
             );
         }
 
@@ -70,25 +97,14 @@ public class Character {
         calculateStats();
     }
 
-    // Getter dan Setter HitPoints
     public int getHitPoints() {
         return hitPoints;
     }
 
-    public void setHitPoints(int hitPoints) {
-        this.hitPoints = hitPoints;
-    }
-
-    // Getter dan Setter Attack
     public int getAttack() {
         return attack;
     }
 
-    public void setAttack(int attack) {
-        this.attack = attack;
-    }
-
-    // Getter dan Setter Mana
     public int getMana() {
         return mana;
     }
@@ -96,48 +112,17 @@ public class Character {
     public void setMana(int mana) {
         if (mana < 0) {
             throw new IllegalArgumentException(
-                "Mana tidak boleh negatif!"
+                "Mana tidak boleh negatif."
             );
         }
 
         this.mana = mana;
     }
 
-    // Mengecek apakah karakter masih hidup
     public boolean isAlive() {
         return hitPoints > 0;
     }
 
-    // Membandingkan karakter berdasarkan nama
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Character other = (Character) obj;
-
-        if (name == null) {
-            return other.name == null;
-        }
-
-        return name.equalsIgnoreCase(other.name);
-    }
-
-    // Menghasilkan hash code berdasarkan nama
-    @Override
-    public int hashCode() {
-        return name == null
-                ? 0
-                : name.toLowerCase(Locale.ROOT).hashCode();
-    }
-
-    // Menampilkan informasi karakter
     @Override
     public String toString() {
         return "Character{" +
@@ -148,5 +133,25 @@ public class Character {
                 ", attack=" + attack +
                 ", mana=" + mana +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Character)) {
+            return false;
+        }
+
+        Character other = (Character) obj;
+
+        return name.equalsIgnoreCase(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name.toLowerCase());
     }
 }
